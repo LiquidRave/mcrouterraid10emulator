@@ -1,0 +1,67 @@
+{
+  "pools": {
+    "Pool_A": {
+      "servers": [ "127.0.0.11:11211", "127.0.0.12:1211" ]
+    },
+    "Pool_B": {
+      "servers": [ "127.0.0.13:11211", "127.0.0.14:11211" ]
+    },
+    "A": {
+      "servers": [ "127.0.0.11:11211" ]
+    },
+    "B": {
+      "servers": [ "127.0.0.12:11211" ]
+    },
+    "C": {
+      "servers": [ "127.0.0.13:11211" ]
+    },
+    "D": {
+      "servers": [ "127.0.0.14:11211" ]
+    }
+  },
+  "route": {
+    "type": "HashRoute",
+    "children": [
+      {
+        "type": "OperationSelectorRoute",
+        "default_policy": {
+          "type": "AllFastestRoute",
+          "children": [ "Pool|Pool_A" ]
+        },
+        "operation_policies": {
+          "get": {
+            "type": "WarmUpRoute",
+                "warm": {
+                "type": "MissFailoverRoute",
+                "children": [ "Pool|A", "Pool|B" ]
+                         },
+                "cold": {
+                "type": "RandomRoute",
+                "children": [ "Pool|A",  "Pool|B" ]
+            }
+          }
+        }
+      },
+      {
+        "type": "OperationSelectorRoute",
+        "default_policy": {
+          "type": "AllFastestRoute",
+          "children": [ "Pool|Pool_B" ]
+        },
+        "operation_policies": {
+          "get": {
+            "type": "WarmUpRoute",
+                "warm": {
+                "type": "MissFailoverRoute",
+                "children": [ "Pool|C", "Pool|D" ]
+                         },
+                "cold": {
+                "type": "RandomRoute",
+                "children": [ "Pool|C",  "Pool|D" ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}
